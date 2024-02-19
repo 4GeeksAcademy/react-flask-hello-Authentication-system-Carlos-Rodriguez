@@ -68,6 +68,20 @@ def serve_any_other_file(path):
     return response
 
 
+@app.route('/signup', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    
+   
+    try:
+        token = signUp(email, password)
+        return jsonify({'token': token}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 400
+
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
