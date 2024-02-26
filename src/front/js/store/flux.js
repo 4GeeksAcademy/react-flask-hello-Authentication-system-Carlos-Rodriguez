@@ -11,7 +11,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     actions: {
       signup: async (email, password, navigate) => {
         try {
-          const response = await fetch('https://vigilant-enigma-wr7v5vg9w74wc95q5-3000.app.github.dev/signup', {
+          const response = await fetch('https://vigilant-enigma-wr7v5vg9w74wc95q5-3001.app.github.dev/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
