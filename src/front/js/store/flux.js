@@ -1,65 +1,84 @@
 const getState = ({ getStore, getActions, setStore }) => {
+  
   return {
     store: {
       message: null,
       demo: [
-        {
-          title: "FIRST",
-          background: "white",
-          initial: "white"
-        },
-        {
-          title: "SECOND",
-          background: "white",
-          initial: "white"
-        }
-      ]
+        { title: "FIRST", background: "white", initial: "white" },
+        { title: "SECOND", background: "white", initial: "white" }
+      ],
     },
     actions: {
-      exampleFunction: () => {
-        getActions().changeColor(0, "green");
-      },
-
-      getMessage: async () => {
+      signup: async (email, password, navigate) => {
         try {
-          const resp = await fetch(process.env.BACKEND_URL + "/api/hello");
-          const data = await resp.json();
-          setStore({ message: data.message });
-          return data;
+          const response = await fetch('https://vigilant-enigma-wr7v5vg9w74wc95q5-3000.app.github.dev/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Origin': 'https://vigilant-enigma-wr7v5vg9w74wc95q5-3000.app.github.dev/',
+            },
+            mode: 'cors',
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (response.status === 200) {
+            // Registro exitoso, redirige a la vista de inicio de sesión
+            navigate('/login');
+          } else {
+            const data = await response.json();
+            alert(data.error || 'Error en el servidor');
+          }
         } catch (error) {
-          console.log("Error loading message from backend", error);
+          alert('Error de red');
         }
       },
 
-      changeColor: (index, color) => {
-        const store = getStore();
-        const demo = store.demo.map((elm, i) => {
-          if (i === index) elm.background = color;
-          return elm;
-        });
-        setStore({ demo: demo });
-      },
-
-      signUp: async (email, password) => {
+      login: async (email, password) => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/signup`, {
+          const response = await fetch('https://vigilant-enigma-wr7v5vg9w74wc95q5-3000.app.github.dev/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, password }),
           });
-          if (!response.ok) {
-            throw new Error('Error en la solicitud');
+
+          if (response.ok) {
+            const data = await response.json();
+            sessionStorage.setItem('token', data.token);
+            navigate('/private');
+          } else {
+            const data = await response.json();
+            alert(data.error || 'Error en el servidor');
           }
-          const data = await response.json();
+        } catch (error) {
+          console.error('Error de red:', error);
+          alert('Error de red');
+        }
+      },
+
+      logout: () => {
+        sessionStorage.removeItem('token');
+        navigate('/');
+      },
+
+      getMessage: async () => {
+        try {
+          const resp = await fetch('https://vigilant-enigma-wr7v5vg9w74wc95q5-3001.app.github.dev/api/hello');
+          if (!resp.ok) {
+            throw new Error("Error al obtener el mensaje");
+          }
+
+          const data = await resp.json();
+          setStore({ message: data.message });
+
           return data;
         } catch (error) {
-          console.error('Error:', error);
+          console.log("Error al cargar el mensaje desde el backend", error);
           throw error;
         }
       },
-    }
+    },
   };
 };
 
